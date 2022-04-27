@@ -1,3 +1,5 @@
+
+const bcrypt = require('bcrypt');
 //imported Model class and Datatypes object from sequelize
 //Model class is what we create our own models from 
 const { Model, DataTypes } = require('sequelize');
