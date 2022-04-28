@@ -6,7 +6,12 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
 // create our User model - will have all functionality of Model object from Sequelize
-class User extends Model {}
+class User extends Model {
+  // create an 'instance method' to run on instance data (per user) to check password
+  checkPassword(loginPw) {
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
 
 //init method initialized the model's data and configuration, passing in two objects as arguments
 User.init(
