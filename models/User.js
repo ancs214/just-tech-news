@@ -50,7 +50,22 @@ User.init(
         }
       }
   },
-  {
+  { 
+    
+    //adding hooks property to the SECOND (config) object
+    hooks: {
+    //before creation of user obj, use bcrypt to auto-gen a salt and hash
+    async beforeCreate(newUserData) {
+      newUserData.password = await bcrypt.hash(newUserData.password, 10);
+      //will return hashed password to the promise config obj
+      return newUserData
+    },
+    // set up beforeUpdate lifecycle "hook" functionality
+  async beforeUpdate(updatedUserData) {
+    updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+    return updatedUserData;
+  }
+    },
     // TABLE CONFIGURATION OPTIONS GO HERE (https://sequelize.org/v5/manual/models-definition.html#configuration)):
 
     // pass in our imported sequelize connection (the direct connection to our database)
@@ -64,7 +79,7 @@ User.init(
     // make it so our model name stays lowercase in the database
     modelName: 'user'
   }
-);
+  );
 
 //export this newly created model so we can use it in other parts of the app
 module.exports = User;
