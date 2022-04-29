@@ -8,6 +8,8 @@ const { Post, User } = require('../../models');
 router.get('/', (req, res) => {
     Post.findAll({
       attributes: ['id', 'post_url', 'title', 'created_at'],
+      //add order property to return most recently added posts first
+      order: [['created_at', 'DESC']],
       //JOIN to the User table to obtain username
       include: [
         {
