@@ -1,5 +1,8 @@
 const router = require('express').Router();
-const { Post, User } = require('../../models');
+const { Post, User, Vote } = require('../../models');
+//need special Sequelize functionality to include total count of votes for the post
+const sequelize = require('../../config/connection');
+
 
 
 
@@ -7,7 +10,17 @@ const { Post, User } = require('../../models');
   // create a Promise that captures response from the database call to GET all users
 router.get('/', (req, res) => {
     Post.findAll({
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: [
+        'id', 
+        'post_url', 
+        'title', 
+        'created_at',
+        // use raw MySQL aggregate function query to get a count of how many votes the post has and return it under the name `vote_count`
+        [
+          sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+          'vote_count'
+        ]
+      ],
       //add order property to return most recently added posts first
       order: [['created_at', 'DESC']],
       //JOIN to the User table to obtain username
@@ -32,7 +45,17 @@ router.get('/', (req, res) => {
         //to retrieve id of requested post
         id: req.params.id
       },
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: [
+        'id', 
+        'post_url', 
+        'title', 
+        'created_at',
+        // use raw MySQL aggregate function query to get a count of how many votes the post has and return it under the name `vote_count`
+        [
+          sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+          'vote_count'
+        ]
+      ],
       //JOIN to User table to obtain username
       include: [
         {
@@ -68,6 +91,18 @@ router.get('/', (req, res) => {
         res.status(500).json(err);
       });
   });
+
+  // PUT /api/posts/upvote (must be before /:id PUT route, or else Express will think the word 'upvote' is a valid parameter for /:id)
+router.put('/upvote', (req, res) => {
+   // use custom static method created in models/Post.js
+   Post.upvote(req.body, { Vote })
+   .then(updatedPostData => res.json(updatedPostData))
+   .catch(err => {
+     console.log(err);
+     res.status(400).json(err);
+   });
+});
+
 
   //UPDATE A POST'S TITLE
   router.put('/:id', (req, res) => {

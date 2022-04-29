@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User } = require('../../models');
+const { User, Post, Vote } = require('../../models');
 
 // GET /api/users
 router.get('/', (req, res) => {
@@ -19,9 +19,23 @@ router.get('/', (req, res) => {
 
 // GET /api/users/1
 router.get('/:id', (req, res) => {
-    //findOne is like 'SELECT * FROM users WHERE id = 1'
+    //findOne is like 'SELECT * FROM users WHERE id = ?'
     User.findOne({
         attributes: { exclude: ['password'] },
+        //to include posts made and upvotes cast by the user specified
+        //using our 'through table' (Vote)!
+        include: [
+          {
+            model: Post,
+            attributes: ['id', 'title', 'post_url', 'created_at']
+          },
+          {
+            model: Post,
+            attributes: ['title'],
+            through: Vote,
+            as: 'voted_posts'
+          }
+        ],
         where: {
             id: req.params.id
         }
