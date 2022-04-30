@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 //need special Sequelize functionality to include total count of votes for the post
 const sequelize = require('../../config/connection');
 
@@ -9,28 +9,33 @@ const sequelize = require('../../config/connection');
 
   // create a Promise that captures response from the database call to GET all users
 router.get('/', (req, res) => {
-    Post.findAll({
-      attributes: [
-        'id', 
-        'post_url', 
-        'title', 
-        'created_at',
-        // use raw MySQL aggregate function query to get a count of how many votes the post has and return it under the name `vote_count`
-        [
-          sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
-          'vote_count'
-        ]
-      ],
-      //add order property to return most recently added posts first
-      order: [['created_at', 'DESC']],
-      //JOIN to the User table to obtain username
-      include: [
-        {
+  Post.findAll({
+    order: [['created_at', 'DESC']],
+    attributes: [
+      'id',
+      'post_url',
+      'title',
+      'created_at',
+      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+    ],
+    include: [
+      // include the Comment model
+      {
+        model: Comment,
+        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+        //to show username of user who made the comment
+        include: {
           model: User,
           attributes: ['username']
         }
-      ]
-    })
+      },
+      {
+        //to show username of user who created the post
+        model: User,
+        attributes: ['username']
+      }
+    ]
+   })
       .then(dbPostData => res.json(dbPostData))
       .catch(err => {
         console.log(err);
@@ -56,26 +61,30 @@ router.get('/', (req, res) => {
           'vote_count'
         ]
       ],
-      //JOIN to User table to obtain username
       include: [
+        // include the Comment model
         {
+          model: Comment,
+          attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+          //show username of user who made the comment
+          include: {
+            model: User,
+            attributes: ['username']
+          }
+        },
+        {
+          //show username of user who created the post
           model: User,
           attributes: ['username']
         }
       ]
-    })
-      .then(dbPostData => {
-        if (!dbPostData) {
-          res.status(404).json({ message: 'No post found with this id' });
-          return;
-        }
-        res.json(dbPostData);
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  });
+     })
+        .then(dbPostData => res.json(dbPostData))
+        .catch(err => {
+          console.log(err);
+          res.status(500).json(err);
+        });
+    });
   
   //POST ROUTE
   router.post('/', (req, res) => {

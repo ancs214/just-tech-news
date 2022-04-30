@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Post, Vote } = require('../../models');
+const { User, Post, Vote, Comment } = require('../../models');
 
 // GET /api/users
 router.get('/', (req, res) => {
@@ -22,6 +22,9 @@ router.get('/:id', (req, res) => {
     //findOne is like 'SELECT * FROM users WHERE id = ?'
     User.findOne({
         attributes: { exclude: ['password'] },
+        where: {
+          id: req.params.id
+        },
         //to include posts made and upvotes cast by the user specified
         //using our 'through table' (Vote)!
         include: [
@@ -29,17 +32,25 @@ router.get('/:id', (req, res) => {
             model: Post,
             attributes: ['id', 'title', 'post_url', 'created_at']
           },
+          //include Comment model - show post title that was commented on
+          {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'created_at'],
+            include: {
+              model: Post,
+              attributes: ['title']
+            }
+          },
+          //include Post model - show voted_posts (from Post model)
           {
             model: Post,
             attributes: ['title'],
             through: Vote,
             as: 'voted_posts'
           }
-        ],
-        where: {
-            id: req.params.id
-        }
-    })
+        ]
+      })
+      
         .then(dbUserData => {
             if (!dbUserData) {
                 //if user does not exist, respond w 404 status
