@@ -45,7 +45,10 @@ router.get('/', (req, res) => {
              //must serialize data with Sequelize's get() method or else we get much more data than intended. (we didnt need to before because res.json did it for us)
             const posts = dbPostData.map(post => post.get({ plain: true }));
             //we take that array and add it to an object to pass into the template
-            res.render('homepage', { posts });
+            res.render('homepage', { 
+              posts,
+              loggedIn: req.session.loggedIn 
+            });
         })
         .catch(err => {
             console.log(err);
@@ -104,7 +107,11 @@ router.get('/login', (req, res) => {
         const post = dbPostData.get({ plain: true });
   
         // pass data to template
-        res.render('single-post', { post });
+        res.render('single-post', { 
+          post, 
+          //so we can pass a session variable into the template
+          loggedIn: req.session.loggedIn 
+        });
       })
       .catch(err => {
         console.log(err);

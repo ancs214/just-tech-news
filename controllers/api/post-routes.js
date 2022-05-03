@@ -86,7 +86,7 @@ router.get('/', (req, res) => {
         });
     });
   
-  //POST ROUTE
+  //CREATE POST ROUTE
   router.post('/', (req, res) => {
     // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
     Post.create({
