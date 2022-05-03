@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
         });
 });
 
-// GET /api/users/1
+// GET A SINGLE USER
 router.get('/:id', (req, res) => {
     //findOne is like 'SELECT * FROM users WHERE id = ?'
     User.findOne({
@@ -65,7 +65,7 @@ router.get('/:id', (req, res) => {
         });
 });
 
-// POST /api/users
+// CREATE A USER -  /api/users
 router.post('/', (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
@@ -94,7 +94,8 @@ router.post('/', (req, res) => {
         });
 });
 
-//route for when users login. GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
+
+//LOGIN ROUTE  -  GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
 router.post('/login', (req, res) => {
 // expects {email: 'lernantino@gmail.com', password: 'password1234'}
 User.findOne({
@@ -116,7 +117,7 @@ User.findOne({
     return;
   }
 
-  //CREATE SESSION
+  //CREATE NEW SESSION
   req.session.save(() => {
     // declare SESSION VARIABLES
     req.session.user_id = dbUserData.id;
@@ -142,7 +143,7 @@ router.post('/logout', (req, res) => {
 
 
 
-// PUT /api/users/1
+// UPDATE USER INFO  -  /api/users/1
 router.put('/:id', (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   
@@ -169,7 +170,7 @@ router.put('/:id', (req, res) => {
   });
   
 
-// DELETE /api/users/1
+// DELETE A USER   -   /api/users/1
 router.delete('/:id', (req, res) => {
     User.destroy({
       where: {
