@@ -10,7 +10,10 @@ const { Post, User, Comment } = require('../models');
 
 //since we are using a template engine, we use res.render and specify our template -- homepage.handlbars
 //res.render can accept a second argument; an object, which will be the data we want to pass into our template (this data will coincide with our posts route requirements)
+
+//HOMEPAGE
 router.get('/', (req, res) => {
+    console.log(req.session);
     Post.findAll({
         attributes: [
             'id',
@@ -49,6 +52,17 @@ router.get('/', (req, res) => {
             res.status(500).json(err);
         });
 });
+
+//LOGIN PAGE (we dont have any variables to plug into our login page so we dont need to pass in a second argument to res.render)
+router.get('/login', (req, res) => {
+    //if logged in already, redirect to homepage
+    if (req.session.loggedIn) {
+        res.redirect('/');
+        return;
+      }    
+
+    res.render('login');
+  });
 
 
 module.exports = router;

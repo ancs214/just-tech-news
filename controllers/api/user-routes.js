@@ -77,7 +77,17 @@ router.post('/', (req, res) => {
         email: req.body.email,
         password: req.body.password
     })
-        .then(dbUserData => res.json(dbUserData))
+    //save user id and username to session with a boolean describing whether or not user is logged in
+    //req.session.save() method will initiate the creation of the session and then run the callback function once complete
+    .then(dbUserData => {
+      req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+    
+        res.json(dbUserData);
+      });
+    })
         .catch(err => {
             console.log(err);
             res.status(500).json(err);
@@ -99,17 +109,35 @@ User.findOne({
     return;
   }
 
-  // res.json({ user: dbUserData });
-
   // Verify user with instance method we created in user.js
   const validPassword = dbUserData.checkPassword(req.body.password);
   if (!validPassword) {
     res.status(400).json({ message: 'Incorrect password!' });
     return;
   }
+
+  //CREATE SESSION
+  req.session.save(() => {
+    // declare SESSION VARIABLES
+    req.session.user_id = dbUserData.id;
+    req.session.username = dbUserData.username;
+    req.session.loggedIn = true;
   
   res.json({ user: dbUserData, message: 'You are now logged in!' });
-});  
+    });
+  });  
+});
+
+//LOGOUT ROUTE
+router.post('/logout', (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
 });
 
 
