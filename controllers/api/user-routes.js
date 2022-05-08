@@ -97,7 +97,7 @@ router.post('/', withAuth, (req, res) => {
 
 
 //LOGIN ROUTE  -  GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
-router.post('/login', withAuth, (req, res) => {
+router.post('/login', (req, res) => {
 // expects {email: 'lernantino@gmail.com', password: 'password1234'}
 User.findOne({
   where: {
