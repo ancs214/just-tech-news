@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { User, Post, Vote, Comment } = require('../../models');
+const withAuth = require('../../utils/auth');
 
 // GET /api/users
 router.get('/', (req, res) => {
@@ -66,7 +67,7 @@ router.get('/:id', (req, res) => {
 });
 
 // CREATE A USER -  /api/users
-router.post('/', (req, res) => {
+router.post('/', withAuth, (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
     //create func is like:
@@ -96,7 +97,7 @@ router.post('/', (req, res) => {
 
 
 //LOGIN ROUTE  -  GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
-router.post('/login', (req, res) => {
+router.post('/login', withAuth, (req, res) => {
 // expects {email: 'lernantino@gmail.com', password: 'password1234'}
 User.findOne({
   where: {
@@ -130,7 +131,7 @@ User.findOne({
 });
 
 //LOGOUT ROUTE
-router.post('/logout', (req, res) => {
+router.post('/logout', withAuth, (req, res) => {
   if (req.session.loggedIn) {
     req.session.destroy(() => {
       res.status(204).end();
@@ -144,7 +145,7 @@ router.post('/logout', (req, res) => {
 
 
 // UPDATE USER INFO  -  /api/users/1
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   
     // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
@@ -171,7 +172,7 @@ router.put('/:id', (req, res) => {
   
 
 // DELETE A USER   -   /api/users/1
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     User.destroy({
       where: {
         id: req.params.id

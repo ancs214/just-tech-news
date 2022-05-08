@@ -4,6 +4,7 @@ async function newFormHandler(event) {
     const title = document.querySelector('input[name="post-title"]').value;
     const post_url = document.querySelector('input[name="post-url"]').value;
   
+    //on form submission, this will grab post title and url values from the form and send with a post request 
     const response = await fetch(`/api/posts`, {
       method: 'POST',
       body: JSON.stringify({

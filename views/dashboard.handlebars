@@ -14,15 +14,16 @@
   </form>
 </section>
 
+{{!-- if user has posts, create them here --}}
 {{#if posts.length}}
 <section>
   <h2>Your Posts</h2>
   <ol>
     {{#each posts as |post|}}
     <li>
-      {{!--using partial helper here--}}
+      {{!--using partial helper to display details of each post--}}
       {{> post-info post}}
-      {{!-- adding link to a separate edit page --}}
+      {{!-- adding link to a separate edit post page --}}
       <a href="/dashboard/edit/{{post.id}}" class="edit-link">Edit post</a>
     </li>
     {{/each}}
