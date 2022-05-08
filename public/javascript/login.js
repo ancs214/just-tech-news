@@ -45,7 +45,8 @@ async function signupFormHandler(event) {
       });
   
       if (response.ok) {
-        document.location.replace('/');
+        //if login okay, go to dashboard page
+        document.location.replace('/dashboard');
       } else {
         alert(response.statusText);
       }
