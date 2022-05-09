@@ -4,6 +4,7 @@ const { Post, User, Comment } = require('../models');
 const withAuth = require('../utils/auth');
 
 //get all posts from the user; inserted withAuth function
+//      3001/dashboard
 router.get('/', withAuth, (req, res) => {
     Post.findAll({
       where: {
@@ -43,7 +44,8 @@ router.get('/', withAuth, (req, res) => {
       });
   });
 
-  //GET INDIVIDUAL POST
+  //GET INDIVIDUAL POST TO EDIT
+//      3001/dashboard/edit/:id
   router.get('/edit/:id', withAuth, (req, res) => {
     Post.findOne({
       where: {
@@ -89,10 +91,10 @@ router.get('/', withAuth, (req, res) => {
       const post = dbPostData.get({ plain: true });
 
       // pass data to template
-      res.render('single-post', { 
+      res.render('edit-post', { 
         post, 
         //so we can pass a session variable into the template
-        loggedIn: req.session.loggedIn 
+        // loggedIn: req.session.loggedIn 
       });
     })
     .catch(err => {
