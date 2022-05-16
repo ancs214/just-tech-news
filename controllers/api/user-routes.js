@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { User, Post, Vote, Comment } = require('../../models');
+const withAuth = require('../../utils/auth');
 
 // GET /api/users
 router.get('/', (req, res) => {
@@ -17,7 +18,7 @@ router.get('/', (req, res) => {
         });
 });
 
-// GET /api/users/1
+// GET A SINGLE USER
 router.get('/:id', (req, res) => {
     //findOne is like 'SELECT * FROM users WHERE id = ?'
     User.findOne({
@@ -65,7 +66,7 @@ router.get('/:id', (req, res) => {
         });
 });
 
-// POST /api/users
+// CREATE A USER -  /api/users
 router.post('/', (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
@@ -77,14 +78,25 @@ router.post('/', (req, res) => {
         email: req.body.email,
         password: req.body.password
     })
-        .then(dbUserData => res.json(dbUserData))
+    //save user id and username to session with a boolean describing whether or not user is logged in
+    //req.session.save() method will initiate the creation of the session and then run the callback function once complete
+    .then(dbUserData => {
+      req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+    
+        res.json(dbUserData);
+      });
+    })
         .catch(err => {
             console.log(err);
             res.status(500).json(err);
         });
 });
 
-//route for when users login. GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
+
+//LOGIN ROUTE  -  GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, which makes it a more secure way of transferring data from the client to the server.
 router.post('/login', (req, res) => {
 // expects {email: 'lernantino@gmail.com', password: 'password1234'}
 User.findOne({
@@ -99,23 +111,41 @@ User.findOne({
     return;
   }
 
-  // res.json({ user: dbUserData });
-
   // Verify user with instance method we created in user.js
   const validPassword = dbUserData.checkPassword(req.body.password);
   if (!validPassword) {
     res.status(400).json({ message: 'Incorrect password!' });
     return;
   }
+
+  //CREATE NEW SESSION
+  req.session.save(() => {
+    // declare SESSION VARIABLES
+    req.session.user_id = dbUserData.id;
+    req.session.username = dbUserData.username;
+    req.session.loggedIn = true;
   
   res.json({ user: dbUserData, message: 'You are now logged in!' });
-});  
+    });
+  });  
+});
+
+//LOGOUT ROUTE
+router.post('/logout', withAuth, (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
 });
 
 
 
-// PUT /api/users/1
-router.put('/:id', (req, res) => {
+// UPDATE USER INFO  -  /api/users/1
+router.put('/:id', withAuth, (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   
     // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
@@ -141,8 +171,8 @@ router.put('/:id', (req, res) => {
   });
   
 
-// DELETE /api/users/1
-router.delete('/:id', (req, res) => {
+// DELETE A USER   -   /api/users/1
+router.delete('/:id', withAuth, (req, res) => {
     User.destroy({
       where: {
         id: req.params.id
