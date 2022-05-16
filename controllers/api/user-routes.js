@@ -67,7 +67,7 @@ router.get('/:id', (req, res) => {
 });
 
 // CREATE A USER -  /api/users
-router.post('/', withAuth, (req, res) => {
+router.post('/', (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
     //create func is like:

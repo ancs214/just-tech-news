@@ -86,7 +86,7 @@ router.get('/', (req, res) => {
         });
     });
   
-  //CREATE POST ROUTE
+  //CREATE POST 
   router.post('/', withAuth, (req, res) => {
     // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
     Post.create({
@@ -101,7 +101,8 @@ router.get('/', (req, res) => {
       });
   });
 
-  //UPVOTE ROUTE  -  /api/posts/upvote (must be before /:id PUT route, or else Express will think the word 'upvote' is a valid parameter for /:id)
+  //UPVOTE ROUTE  -  /api/posts/upvote 
+  //(must be before /:id PUT route, or else Express will think the word 'upvote' is a valid parameter for /:id)
   //pass in user_id and post_id in body of request
   router.put('/upvote', withAuth, (req, res) => {
     // make sure the session exists 

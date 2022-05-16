@@ -1,4 +1,31 @@
 //use async/await:  add async to function that wraps our asynchronous code to declare that this is asynchronous! then add await before the promise. we can set the result of the promise to a variable.
+
+async function loginFormHandler(event) {
+  event.preventDefault();
+
+  const email = document.querySelector('#email-login').value.trim();
+  const password = document.querySelector('#password-login').value.trim();
+
+  if (email && password) {
+    const response = await fetch('/api/users/login', {
+      method: 'post',
+      body: JSON.stringify({
+        email,
+        password
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      //if login okay, go to dashboard page
+      document.location.replace('/dashboard');
+    } else {
+      alert(response.statusText);
+    }
+  }
+}
+
+
 async function signupFormHandler(event) {
     event.preventDefault();
   
@@ -21,6 +48,7 @@ async function signupFormHandler(event) {
       // check the response status using .ok property on response object
     if (response.ok) {
         console.log('success');
+        document.location.replace('/dashboard/');
       } else {
         alert(response.statusText);
       }
@@ -28,31 +56,6 @@ async function signupFormHandler(event) {
   }
   
 
-  async function loginFormHandler(event) {
-    event.preventDefault();
-  
-    const email = document.querySelector('#email-login').value.trim();
-    const password = document.querySelector('#password-login').value.trim();
-  
-    if (email && password) {
-      const response = await fetch('/api/users/login', {
-        method: 'post',
-        body: JSON.stringify({
-          email,
-          password
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-  
-      if (response.ok) {
-        //if login okay, go to dashboard page
-        document.location.replace('/dashboard');
-      } else {
-        alert(response.statusText);
-      }
-    }
-  }
-  
 
 
 
